@@ -1,1 +1,7 @@
 # JWTAUTH
+Package for API project:
+Microsoft.EntityFrameworkCore
+Microsoft.EntityFrameworkCore.Tools
+Microsoft.EntityFrameworkCore.Sqlite
+Microsoft.AspNetCore.Identity.EntityFrameworkCore
+Microsoft.AspNetCore.Authentication.JwtBearer
