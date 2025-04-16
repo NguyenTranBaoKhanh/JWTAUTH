@@ -1,6 +1,7 @@
 using System.Text;
 using API.Data;
 using API.Models;
+using API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,7 @@ builder.Services.AddAuthentication(option => {
 });
 
 builder.Services.AddControllers();
+builder.Services.AddTransient<IUserServices, UserServices>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => {
