@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using API.Dtos;
+using API.Jwt;
 using API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -101,28 +98,39 @@ namespace API.Services
         }
         private string GenerateToken(AppUser user)
         {
-            var claims = new List<Claim>
-            {
-                new("UserId", user.Id.ToString()),
-                new("Email", user.Email ?? ""),
-                new("JwtRegisteredClaimNames.Jti", Guid.NewGuid().ToString())
-            };
-            var roles = _userManager.GetRolesAsync(user).Result;
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim("Role", role));
-            }
+            // var claims = new List<Claim>
+            // {
+            //     new("UserId", user.Id.ToString()),
+            //     new("Email", user.Email ?? ""),
+            //     new("JwtRegisteredClaimNames.Jti", Guid.NewGuid().ToString())
+            // };
+            // var roles = _userManager.GetRolesAsync(user).Result;
+            // foreach (var role in roles)
+            // {
+            //     claims.Add(new Claim("Role", role));
+            // }
 
-            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWTSetting:securityKey"]));
-            var token = new JwtSecurityToken(
-                issuer: _configuration["JWTSetting:ValidIssuer"],
-                audience: _configuration["JWTSetting:ValidAudience"],
-                expires: DateTime.Now.AddMinutes(60),
-                claims: claims,
-                signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-            );
+            // var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWTSetting:securityKey"]));
+            // var token = new JwtSecurityToken(
+            //     issuer: _configuration["JWTSetting:ValidIssuer"],
+            //     audience: _configuration["JWTSetting:ValidAudience"],
+            //     expires: DateTime.Now.AddMinutes(60),
+            //     claims: claims,
+            //     signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+            // );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            // return new JwtSecurityTokenHandler().WriteToken(token);
+
+            var token = new JwtTokenBuilder()
+                .AddSecurityKey(JwtSecurityKey.Create(_configuration["JWTSetting:securityKey"]))
+                .AddIssuer(_configuration["JWTSetting:ValidIssuer"])
+                .AddAudience(_configuration["JWTSetting:ValidAudience"])
+                .AddSubject(user.Id.ToString())
+                .AddExpiry(60)
+                .AddClaim("UserId", user.Id.ToString())
+                .AddClaim("Email", user.Email ?? "")
+                .Build();
+            return token.Value;
         }
 
         public async Task<CommonResponse<ValidateTokenResponse>> ValidateToken(string token)
